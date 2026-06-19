@@ -1,0 +1,260 @@
+@charset "utf-8";
+
+* {
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border-style: none;
+  vertical-align: baseline;
+  font: inherit;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+body {
+  font-family: "Poppins", "Nunito Sans", Arial, sans-serif;
+  height: 100dvh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  background: url(./assets/img/joshua-kettle-mHm1ASYNC0I-unsplash.jpg) center;
+  background-size: 100% 150%;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3); 
+    z-index: -1; 
+}
+
+.everything {
+    text-align: center;
+    margin-bottom: 150px;
+}
+
+.highlight {
+    color: #00ff00;
+}
+
+.reset {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: #fff;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.reset:hover {
+    cursor: pointer;
+    background-color: #e95c4d;
+}
+
+.game-container {
+    font-family: "Press Start 2P", sans-serif;
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 20px;
+    border-radius: 10px; 
+    background: transparent;
+    justify-content: center;
+}
+
+h1 {
+    font-family: "Press Start 2P", sans-serif;
+    color: #000; 
+    font-size: 80px;
+    font-weight: 700;
+}
+
+.word-display, .game-over {
+    font-size: 24px;
+    margin: 20px;
+    color: #ff0000; 
+}
+
+.scoreboard li {
+    justify-content: center;
+    text-decoration: none;
+    list-style: none;
+    color: #01b3a6;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+@keyframes scoreAnimation {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.score-animation {
+    animation: scoreAnimation 0.5s ease-in-out;
+    color: #27ae60; 
+}
+
+.scoreboard p {
+    font-size: 20px;
+    color: #fff;
+}
+
+.scoreTable h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.startPage {
+    margin-bottom: 80px;
+}
+
+.scoreTable {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    background:transparent;
+    display: block;
+}
+
+.user-input {
+    margin-top: 10px;
+    font-size: 16px;
+    padding: 10px;
+    border: 2px solid #27ae60; 
+    border-radius: 5px;
+    background-color: #ecf0f1; 
+    text-align: center;
+}
+
+.user-input:focus {
+    outline: none;
+    border-color: #3498db; 
+}
+
+.score {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #f39c12; 
+}
+
+.timer {
+    font-family: "Press Start 2P", sans-serif;
+    font-size: 26px;
+    text-align: center;
+    color:#00ff00;
+    margin-bottom: 70px;
+}
+
+.startBtn {
+    font-family: "Press Start 2P", sans-serif;
+    padding: 20px;
+    border-radius: 5px;
+    font-size: 36px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes colorChange {
+    0% {
+        color: #ff0000; 
+    }
+    50% {
+        color: #00ff00; 
+    }
+    100% {
+        color: #0000ff; 
+    }
+}
+
+.your-text-class {
+    animation: colorChange 3s infinite;
+}
+
+.matched-letter {
+    color: #00ff00;
+    animation: scoreAnimation 0.5s ease-in-out;
+}
+
+.your-text-class span {
+    display: inline-block;
+    animation: animate 1s ease-in-out infinite;
+}
+
+@keyframes animate {
+    0% {
+        transform: translateY(0);
+    }
+    20% {
+        transform: translateY(-20px);
+    }
+    40%, 100% {
+        transform: translateY(0);
+    }
+}
+
+.startBtn:hover {
+    cursor: pointer;
+}
+
+.startBtn::before {
+    content: "";
+    position: absolute;
+    background-color: red;
+    width: 0;
+    height: 0;   
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%; 
+    transition: all 0.3s ease-in-out;
+}
+
+.startBtn:hover::before {
+    width: 500px;
+    height: 500px;
+    overflow: hidden;
+}
+
+span {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes changeColor {
+    0%, 100% {
+        color: #ff0000;
+    }
+    50% {
+        color: #00ff00; 
+    }
+}
+
+@keyframes flash {
+    0%, 100% {
+      color: #ff0000; 
+    }
+    50% {
+      color: transparent; 
+    }
+}
+
+.flash {
+    animation: flash 1s infinite;
+}
+
+.countDown {
+    font-size: 150px; 
+    font-weight: bold;
+    animation: changeColor 2s infinite;
+    color: #fff;
+}
