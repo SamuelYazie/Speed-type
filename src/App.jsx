@@ -25,6 +25,7 @@ function App() {
   const [scoresArray, setScoresArray] = useState(
     JSON.parse(localStorage.getItem('scores')) || []
   );
+  
   const [started, setStarted] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);
@@ -35,41 +36,36 @@ function App() {
   const [timer, setTimer] = useState(20);
   const [gameOver, setGameOver] = useState(false);
   const [animateScore, setAnimateScore] = useState(false);
+  const [totalWords, setTotalWords] = useState(0);
+  const [allWords, setAllWords] = useState([]);
   const scoreRef = useRef(0);
-
-  const words = [
-    'dinosaur', 'love', 'pineapple', 'calendar', 'robot', 'building',
-    'population', 'weather', 'bottle', 'history', 'dream', 'character', 'money',
-    'absolute', 'discipline', 'machine', 'accurate', 'connection', 'rainbow',
-    'bicycle', 'eclipse', 'calculator', 'trouble', 'watermelon', 'developer',
-    'philosophy', 'database', 'periodic', 'capitalism', 'abominable',
-    'component', 'future', 'pasta', 'microwave', 'jungle', 'wallet', 'canada',
-    'coffee', 'beauty', 'agency', 'chocolate', 'eleven', 'technology', 'promise',
-    'alphabet', 'knowledge', 'magician', 'professor', 'triangle', 'earthquake',
-    'baseball', 'beyond', 'evolution', 'banana', 'perfume', 'computer',
-    'management', 'discovery', 'ambition', 'music', 'eagle', 'crown', 'chess',
-    'laptop', 'bedroom', 'delivery', 'enemy', 'button', 'superman', 'library',
-    'unboxing', 'bookstore', 'language', 'homework', 'fantastic', 'economy',
-    'interview', 'awesome', 'challenge', 'science', 'mystery', 'famous',
-    'league', 'memory', 'leather', 'planet', 'software', 'update', 'yellow',
-    'keyboard', 'window', 'beans', 'truck', 'sheep', 'band', 'level', 'hope',
-    'download', 'blue', 'actor', 'desk', 'watch', 'giraffe', 'brazil', 'mask',
-    'audio', 'school', 'detective', 'hero', 'progress', 'winter', 'passion',
-    'rebel', 'amber', 'jacket', 'article', 'paradox', 'social', 'resort', 'escape'
-  ];
 
   function shuffleArray(array) {
     return array.sort(() => Math.random() - 0.5);
   }
 
-  const [shuffledWords, setShuffledWords] = useState(
-    shuffleArray([...words])
-  );
+  const [shuffledWords, setShuffledWords] = useState([]);
+
+  useEffect(() => {
+    async function loadWords() {
+      const response = await fetch(
+        'https://api.datamuse.com/words?sp=?????&max=100'
+      );
+      
+      const data = await response.json();
+      const words = data.map(word => word.word);
+      setAllWords(words);
+      setTotalWords(words.length);
+      setShuffledWords(shuffleArray(words));
+    }
+
+    loadWords();
+  }, []);
 
   function saveScore(score) {
     const gameData = {
       hits: score,
-      percentage: ((score / words.length) * 100).toFixed(2),
+      percentage: ((score / totalWords) * 100).toFixed(2),
     };
 
     const updatedScores = [...scoresArray, gameData]
@@ -119,11 +115,12 @@ function App() {
       return;
     }
 
-    const next = shuffledWords.pop();
+    const wordsLeft = [...shuffledWords];
+    const next = wordsLeft.pop();
 
     setWord(next);
     setInput('');
-    setShuffledWords([...shuffledWords]);
+    setShuffledWords(wordsLeft);
   }
 
 
@@ -145,8 +142,7 @@ function App() {
     setStarted(false);
     setBtnVisible(true);
     setCountDown('');
-
-    setShuffledWords(shuffleArray([...words]));
+    setShuffledWords(shuffleArray(...allWords));
   }
 
 
@@ -283,4 +279,3 @@ return (
 }
 
 export default App;
-
