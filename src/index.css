@@ -17,7 +17,7 @@ body {
   width: 100%;
   display: grid;
   place-items: center;
-  background: url(./assets/img/joshua-kettle-mHm1ASYNC0I-unsplash.jpg) center;
+  background: url(../public/assets/img/joshua-kettle-mHm1ASYNC0I-unsplash.jpg) center;
   background-size: 100% 150%;
 }
 
