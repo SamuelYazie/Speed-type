@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
 import ScoreTable from "./ScoreTable.jsx";
-
+import DifficultyBtns from "./DifficultyBtns.jsx";
 
 function App() {
   const countdownSound = useRef(
@@ -31,43 +31,50 @@ function App() {
   const [started, setStarted] = useState(false);
   const [gameVisible, setGameVisible] = useState(false);
   const [btnVisible, setBtnVisible] = useState(true);
+  const [diffBtnVisible, setDiffBtnVisible] = useState(false);
   const [countDown, setCountDown] = useState('');
   const [word, setWord] = useState('');
   const [input, setInput] = useState('');
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(20);
+  const [timer, setTimer] = useState(30);
   const [gameOver, setGameOver] = useState(false);
   const [animateScore, setAnimateScore] = useState(false);
   const [totalWords, setTotalWords] = useState(0);
   const [allWords, setAllWords] = useState([]);
+  const [shuffledWords, setShuffledWords] = useState([]);
   const scoreRef = useRef(0);
 
   function shuffleArray(array) {
-    return array.sort(() => Math.random() - 0.5);
+    return [...array].sort(() => Math.random() - 0.5);
   }
 
-  const [shuffledWords, setShuffledWords] = useState([]);
-
-  useEffect(() => {
-    async function loadWords() {
-      const response = await fetch(
-        'https://api.datamuse.com/words?sp=?????&max=100'
-      );
-      
-      const data = await response.json();
-      const words = data.map(word => word.word);
-      setAllWords(words);
-      setTotalWords(words.length);
-      setShuffledWords(shuffleArray(words));
-    }
-
-    loadWords();
-  }, []);
+  async function fetchWords(gameLevel) {
+    const wordLength = "?".repeat(gameLevel);
+    
+    const response = await fetch(
+      `https://api.datamuse.com/words?sp=${wordLength}&max=100`
+    );
+    
+    const data = await response.json();
+    const words = data.map(word => word.word);
+    console.log("Fetched words:", words);
+    setAllWords(words);
+    setTotalWords(words.length);
+    const shuffled = shuffleArray(words);
+    setShuffledWords(shuffled);
+    return shuffled; 
+  }
+  
+  function setDifficulty() {
+    mouseClick.current.play();
+    setBtnVisible(false);
+    setDiffBtnVisible(true);
+  }
 
   function saveScore(score) {
     const gameData = {
       hits: score,
-      percentage: ((score / totalWords) * 100).toFixed(2),
+      percentage: totalWords > 0 ? ((score / totalWords) * 100).toFixed(2) : 0,
     };
 
     const updatedScores = [...scoresArray, gameData]
@@ -78,10 +85,17 @@ function App() {
     localStorage.setItem("scores", JSON.stringify(updatedScores));
   }
 
-
-  function startGame() {
+  async function startGame(gameLevel) {
     mouseClick.current.play();
-    setBtnVisible(false);
+    setDiffBtnVisible(false);
+    
+    const words = await fetchWords(gameLevel);
+    
+    if (!words || words.length === 0) {
+      console.error("No words fetched!");
+      return;
+    }
+    
     let count = 3;
     
     const interval = setInterval(() => {
@@ -92,24 +106,24 @@ function App() {
         count--;
       } 
       else {
-        if (timer <= 10) {
-          tickingClock.current.play();
-        }
         gameSound.current.play();
         clearInterval(interval);
         setCountDown('');
-        nextWord();
+        
+        const wordsLeft = [...words];
+        const firstWord = wordsLeft.pop();
+        setWord(firstWord);
+        setShuffledWords(wordsLeft);
+        
         scoreRef.current = 0;
         setScore(0);        
-        setTimer(20);
+        setTimer(30);
         setGameOver(false);
         setGameVisible(true);
         setStarted(true);
       }
-
     }, 1000);
   }
-
 
   function nextWord() {
     if (shuffledWords.length === 0) {
@@ -125,7 +139,6 @@ function App() {
     setShuffledWords(wordsLeft);
   }
 
-
   function endGame() {
     gameSound.current.pause();
     tickingClock.current.pause();
@@ -136,7 +149,7 @@ function App() {
   function resetGame() {
     scoreRef.current = 0;
     setScore(0);
-    setTimer(20);
+    setTimer(30);
     setInput('');
     setWord('');
     setGameOver(false);
@@ -144,13 +157,12 @@ function App() {
     setStarted(false);
     setBtnVisible(true);
     setCountDown('');
-    setShuffledWords(shuffleArray(...allWords));
+    setShuffledWords([]);
+    setAllWords([]);
   }
-
 
   function handleInput(e) {
     const value = e.target.value;
-
     setInput(value);
 
     if (value === word) {
@@ -162,7 +174,6 @@ function App() {
       nextWord();
     }
   }
-
 
   useEffect(() => {
     if(!gameVisible || gameOver) return;
@@ -177,55 +188,56 @@ function App() {
         if (prev === 11) {
           tickingClock.current.play();
         }
-
         return prev - 1;
       });
-
-    },1000);
+    }, 1000);
+    
     return () => clearInterval(interval);
   }, [gameVisible, gameOver]);
 
-
-return (
+  return (
     <>
       {!started && (
         <div className="startPage">
           <p className="countDown">
             {countDown}
           </p>
-            {btnVisible && (
-              <button 
-                className="startBtn"
-                onClick={startGame}
-              >
-                <span>Start game!</span>
-              </button>
-            )}
+          {btnVisible && (
+            <button 
+              className="startBtn"
+              onClick={setDifficulty}
+            >
+              <span>Start game!</span>
+            </button>
+          )}
+          {diffBtnVisible && (
+            <DifficultyBtns startGame={startGame}/>
+          )}
         </div>
       )}
 
       {gameVisible && (
         <div className="everything">
-          <p className="timer">
+          <p className={`timer ${timer <= 10 ? 'flash' : ''}`}>
             Time: {timer}s
           </p>
           <div className="game-container">
-          <h1 className="your-text-class">
-            {"Word Timer".split("").map((char, index) => (
-              <span
-                key={index}
-                style={{
-                  animationDelay: `0.${index + 1}s`
-                }}
-              >
-                {char}
-              </span>
-            ))}
-          </h1>
+            <h1 className="your-text-class">
+              {"Word Timer".split("").map((char, index) => (
+                <span
+                  key={index}
+                  style={{
+                    animationDelay: `0.${index + 1}s`
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h1>
             {!gameOver ? (
               <>
                 <p className="word-display">
-                  {word.split("").map((char,index)=>(
+                  {word ? word.split("").map((char, index) => (
                     <span
                       key={index}
                       className={
@@ -236,28 +248,27 @@ return (
                     >
                       {char}
                     </span>
-                  ))}
+                  )) : "Loading..."}
                 </p>
                 <input
                   className="user-input"
                   value={input}
                   onChange={handleInput}
                   autoFocus
+                  disabled={!word}
                 />
                 <p className={`score ${animateScore ? 'score-animation' : ''}`}>
                   {`Hits: ${score}`}
                 </p>
               </>
-
             ) : (
               <>
                 <ScoreTable scoresArray={scoresArray} />
-
                 <p className="game-over">
                   Game Over!
                 </p>
                 <button className="reset" onClick={resetGame}>
-                  reset
+                  Reset
                 </button>
               </>
             )}
