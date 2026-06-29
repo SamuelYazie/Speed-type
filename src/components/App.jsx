@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState, useRef } from "react";
 import ScoreTable from "./ScoreTable.jsx";
 import DifficultyBtns from "./DifficultyBtns.jsx";
+import lottie from 'lottie-web';
 
 function App() {
   const countdownSound = useRef(
@@ -42,7 +43,64 @@ function App() {
   const [totalWords, setTotalWords] = useState(0);
   const [allWords, setAllWords] = useState([]);
   const [shuffledWords, setShuffledWords] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const lottieContainerRef = useRef(null); 
+  const loadingStartTime = useRef(Date.now()); 
   const scoreRef = useRef(0);
+
+  useEffect(() => {
+    if(!gameVisible || gameOver) return;
+
+    const interval = setInterval(() => {
+      setTimer(prev => {
+        if(prev <= 1){
+          clearInterval(interval);
+          endGame();
+          return 0;
+        }
+        if (prev === 11) {
+          tickingClock.current.play();
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [gameVisible, gameOver]);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/img/joshua-kettle-mHm1ASYNC0I-unsplash.jpg"; 
+    img.onload = () => {
+      const elapsed = Date.now() - loadingStartTime.current;
+      const remaining = 4000 - elapsed;
+      
+      if (remaining > 0) {
+        setTimeout(() => setIsLoading(false), remaining);
+      } else {
+        setIsLoading(false);
+      }
+    };
+    img.onerror = () => {
+      setTimeout(() => setIsLoading(false), 2000);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoading && lottieContainerRef.current) {
+      const anim = lottie.loadAnimation({
+        container: lottieContainerRef.current,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '/assets/animation/loading.json'
+      });
+
+      return () => {
+        anim.destroy();
+      };
+    }
+  }, [isLoading]);
 
   function shuffleArray(array) {
     return [...array].sort(() => Math.random() - 0.5);
@@ -175,25 +233,13 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if(!gameVisible || gameOver) return;
-
-    const interval = setInterval(() => {
-      setTimer(prev => {
-        if(prev <= 1){
-          clearInterval(interval);
-          endGame();
-          return 0;
-        }
-        if (prev === 11) {
-          tickingClock.current.play();
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [gameVisible, gameOver]);
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div ref={lottieContainerRef} className="lottie-container"></div>
+      </div>
+    );
+  }
 
   return (
     <>

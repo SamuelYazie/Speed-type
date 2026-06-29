@@ -37,6 +37,23 @@ body::before {
     margin-bottom: 150px;
 }
 
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw; 
+  min-height: 100vh; 
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  font-family: 'Arial', sans-serif;
+}
+
+.lottie-container {
+  width: 800px;
+  height: 800px;
+  margin-bottom: 20px;
+}
+
 .highlight {
     color: #00ff00;
 }
