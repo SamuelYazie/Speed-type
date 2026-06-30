@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState, useRef } from "react";
 import ScoreTable from "./ScoreTable.jsx";
 import DifficultyBtns from "./DifficultyBtns.jsx";
-import lottie from 'lottie-web';
+import { TypeFlare } from 'react-typeflare';
 
 function App() {
   const countdownSound = useRef(
@@ -44,7 +44,6 @@ function App() {
   const [allWords, setAllWords] = useState([]);
   const [shuffledWords, setShuffledWords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const lottieContainerRef = useRef(null); 
   const loadingStartTime = useRef(Date.now()); 
   const scoreRef = useRef(0);
 
@@ -73,7 +72,7 @@ function App() {
     img.src = "/assets/img/joshua-kettle-mHm1ASYNC0I-unsplash.jpg"; 
     img.onload = () => {
       const elapsed = Date.now() - loadingStartTime.current;
-      const remaining = 4000 - elapsed;
+      const remaining = 3000 - elapsed;
       
       if (remaining > 0) {
         setTimeout(() => setIsLoading(false), remaining);
@@ -85,22 +84,6 @@ function App() {
       setTimeout(() => setIsLoading(false), 2000);
     };
   }, []);
-
-  useEffect(() => {
-    if (isLoading && lottieContainerRef.current) {
-      const anim = lottie.loadAnimation({
-        container: lottieContainerRef.current,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: '/assets/animation/loading.json'
-      });
-
-      return () => {
-        anim.destroy();
-      };
-    }
-  }, [isLoading]);
 
   function shuffleArray(array) {
     return [...array].sort(() => Math.random() - 0.5);
@@ -236,7 +219,9 @@ function App() {
   if (isLoading) {
     return (
       <div className="loading-screen">
-        <div ref={lottieContainerRef} className="lottie-container"></div>
+        <div className="loading-typing-container">
+          <p className="loading-typing">Loading...</p>
+        </div>
       </div>
     );
   }
