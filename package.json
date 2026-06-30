@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lottie-web": "^5.13.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-typeflare": "^1.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
